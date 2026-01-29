@@ -1,7 +1,3 @@
-# LiftQuant
-
-
-
 
 # LiftQuant
 
