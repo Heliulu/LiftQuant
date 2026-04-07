@@ -106,10 +106,3 @@ CUDA_VISIBLE_DEVICES=1 python e2efinetune.py \
     --do_ppl_eval
 ```
 
-## Benchmarking Throughput
-
-We provide a script to benchmark the end-to-end throughput for the Llama-2-70B model. This script requires the **BitBLAS** library to be installed.
-
-```
-python throughout_test_Llama2_70B.py
-```
