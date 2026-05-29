@@ -1,0 +1,4 @@
+transformers==6.6.1
+lm-eval==0.4.4
+bitblas
+

@@ -1,38 +1,69 @@
+# LiftQuant [ICML 2026 Spotlight]
 
-# LiftQuant
+Official implementation of **LiftQuant: Arbitrary Bit-Width LLM via Dimensional Lifting and Projection**.
 
-This repository contains the official implementation for the paper "LiftQuant: Arbitrary Bit-Width LLM via Dimensional Lifting and Projection".
+LiftQuant is a post-training quantization framework for large language models. It enables arbitrary bit-width weight quantization through dimensional lifting and projection, together with intra-block correction for improved accuracy.
 
-## Step 1. Installation
+> **Status:** This repository is under active development. More checkpoints, scripts, and documentation will be released soon.
 
+---
+
+## News
+
+- **[2026.xx.xx]** LiftQuant was accepted as an **ICML 2026 Spotlight** paper.
+- **[2026.xx.xx]** Initial release of code and example scripts.
+- **[2026.xx.xx]** Released several pre-quantized checkpoints for quick evaluation.
+
+---
+
+## Quick Start
+
+We provide several pre-quantized checkpoints for quick testing:
+
+- Qwen3.5-27B, 3-bit
+- Qwen3.5-27B, 2.5-bit
+- Qwen3.6-27B, 3-bit
+- Qwen3.6-27B, 2.5-bit
+- Qwen3.5-9B, 3-bit
+
+The 3-bit models use a `24-to-8` dimensional reduction mapping, while the 2.5-bit models use a `20-to-8` dimensional reduction mapping.
+
+Checkpoints can be downloaded from:
+
+```text
+https://box.nju.edu.cn/d/2f63461b007b4a9c84af/
 ```
-# Create and activate a conda environment
-conda create -n liftuq_env python=3.12 -y
-conda activate liftuq_env
 
-# Install dependencies
+We also provide a chat script accelerated by `bitblas` and `torch.compile` for decoding.
+
+```bash
+python chat/chat_bitblas_compile.py \
+    --fp_model_path /path/to/your/fp_hf_model \
+    --quant_model_path /path/to/your/quant_checkpoint
+```
+
+Please make sure the environment is properly installed before running the chat script.
+
+```shell
+conda create -n liftquant_env python=3.12 -y
+conda activate liftquant_env
+
 pip install -r requirements.txt
 ```
 
-## Step 2. Training the `M` Matrix (Optional)
+If you plan to use the accelerated chat script, please also make sure that `bitblas` and the required CUDA/PyTorch versions are correctly installed.
 
-You can train the projection matrix `M` using the provided scripts:
+## Step 1: Train the Projection Matrix `M` Optional
 
-- `python lattice_generator.py`: Trains `M` using the exact exhaustive search method.
-- `python lattice_generator2.py`: Trains larger `M` matrices using our heuristic search method.
+LiftQuant relies on projection matrices `M` for dimensional lifting and projection.
 
-However, we have already included pre-trained `M` matrices in the `./lattice` directory, so you can **skip this step** for reproducing our main results.
+```shell
+python lattice_generator2.py
+```
 
-## Step 3. Quantize the Model with Intra-Block Correction
+However, we have already included pre-trained `M` matrices in the `./lattice` directory. Therefore, this step can be skipped when reproducing the main results.
 
-This step performs the main LiftUQ quantization process on a model.
-
-#### Key Bit-Width Configurations:
-
-- `--expc n`: Use 2-bit quantization (with a `20/10` `M` matrix).
-- `--expc p`: Use 3-bit quantization (with an `18/6` `M` matrix).
-
-#### Example Command:
+## Step 2: Quantize a Model with Intra-Block Correction
 
 ```
 python main.py \
@@ -40,7 +71,7 @@ python main.py \
     --save_dir ./qmodels \
     --eval_ppl \
     --wbits 2 \
-    --expc n \
+    --expc 20to8 \
     --w_sym \
     --abits 16 \
     --kbits 16 \
@@ -64,16 +95,23 @@ python main.py \
     --lt_lr 2e-4
 ```
 
-## Step 4. End-to-End Fine-tuning of Quantization Parameters (Optional)
+## Step3: End-to-End Fine-tuning of Quantization Parameters Optional
 
-To save significant time, you can skip Step 1/2/3 and use our pre-computed model checkpoints from the intra-block correction phase. These are also available at this MEGA link.
+We provide an **optional** end-to-end fine-tuning script for quantization parameters.
 
-Download the checkpoint and run the E2E fine-tuning script.
+However, we observe that although end-to-end fine-tuning can improve  perplexity and some zero-shot benchmark results, it may degrade  performance on more complex tasks. This paradigm is commonly adopted by  many 2-bit quantization methods to achieve stronger paper-level  benchmark numbers, but we do **not** recommend it if your goal is to deploy a practical chat model.
 
-#### Example Command:
+For deployment-oriented use cases, we recommend:
+
+- For around 30B models: use **2.5-bit quantization** with only block correction.
+- For 7B/14B models: use **3-bit quantization** with only block correction.
+
+These settings usually provide better generalization ability for chat and reasoning tasks.
+
+### Example Command
 
 ```
-CUDA_VISIBLE_DEVICES=1 python e2efinetune.py \
+CUDA_VISIBLE_DEVICES=0 python e2efinetune.py \
     --fp_model_path /path/to/your/Llama-2-7B \
     --quant_model_path ./Llama-2-7B+n.pth \
     --model_family Llama-2 \
@@ -105,4 +143,3 @@ CUDA_VISIBLE_DEVICES=1 python e2efinetune.py \
     --preprocessing_num_workers 32 \
     --do_ppl_eval
 ```
-
