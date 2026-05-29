@@ -10,9 +10,8 @@ LiftQuant is a post-training quantization framework for large language models. I
 
 ## News
 
-- **[2026.xx.xx]** LiftQuant was accepted as an **ICML 2026 Spotlight** paper.
-- **[2026.xx.xx]** Initial release of code and example scripts.
-- **[2026.xx.xx]** Released several pre-quantized checkpoints for quick evaluation.
+- **[2026.05.01]** LiftQuant was accepted as an **ICML 2026 Spotlight** paper.
+- **[2026.05.28]** Initial release of code and example scripts. Released several pre-quantized checkpoints for quick evaluation.
 
 ---
 
