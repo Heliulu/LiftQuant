@@ -12,7 +12,7 @@ from lm_eval.utils import make_table
 from pprint import pprint
 
 import torch.nn as nn
-from quantize.liftuq import liftuq
+from quantize.liftq import liftq
 from tqdm import tqdm
 import utils
 from pathlib import Path
@@ -446,7 +446,7 @@ def main():
             torch.save(dataloader, cache_dataloader)    
   
         
-        liftuq(
+        liftq(
             lm,
             args,
             dataloader,

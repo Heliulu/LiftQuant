@@ -1,4 +1,8 @@
-transformers==6.6.1
-lm-eval==0.4.4
-bitblas
+transformers==5.9.0
+lm-eval==0.4.11
+torch==2.6.0
+bitblas==0.1.0.post1
+matplotlib
+termcolor
+tqdm
 

@@ -77,7 +77,7 @@ def print_trainable_parameters(model):
         f"trainable: {100 * trainable_params / all_param}"
     )
 
-def liftuq(
+def liftq(
     lm,
     args,
     dataloader,
